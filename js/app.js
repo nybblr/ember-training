@@ -22,6 +22,10 @@ App.Router.map(function () {
   this.resource('album', { path: '/album/:album_id' })
 });
 
+App.Album = Ember.Object.extend();
+
+App.Song = Ember.Object.extend();
+
 App.IndexRoute = Ember.Route.extend({
   model: function () {
     return App.ALBUM_FIXTURES;
