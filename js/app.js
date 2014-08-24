@@ -1,6 +1,21 @@
 (function() {
 "use strict";
 
+Ember.Handlebars.helper('format-duration', function (value) {
+  var minutes = Math.floor(value / 60);
+  var seconds = value % 60;
+
+  var duration = "";
+  duration += minutes;
+  duration += ":";
+  if (seconds < 10) {
+    duration += "0";
+  }
+  duration += seconds;
+
+  return duration;
+});
+
 window.App = Ember.Application.create();
 
 App.Router.map(function () {
