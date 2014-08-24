@@ -18,6 +18,10 @@
     <script type="text/x-handlebars">
       <header><h1>BümBöx</h1></header>
 
+      {{outlet}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="index">
       <div class="album-list">
         {{#each}}
           <div class="album">
@@ -33,6 +37,10 @@
           </div>
         {{/each}}
       </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="album">
+      <div class="album-info"></div>
     </script>
 
     <div id="qunit" style="display: none"></div>
