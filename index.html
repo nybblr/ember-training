@@ -42,7 +42,28 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="album">
-      <div class="album-info"></div>
+      <div class="album-info">
+        <img {{bind-attr src=artwork}}>
+        <h1>{{name}}</h1>
+        <h2>{{artist}}</h2>
+      </div>
+
+      <table class="album-listing">
+        <tbody>
+          {{#each songs}}
+            <tr>
+              <td class="song-track">
+                <span class="track-number">{{track}}</span>
+              </td>
+              <td class="song-name">{{name}}</td>
+              <td class="song-duration">{{duration}}</td>
+            </tr>
+          {{/each}}
+          <tr>
+            <td class="total-duration" colspan="3">Total Time: 40:03</td>
+          </tr>
+        </tbody>
+      </table>
     </script>
 
     <div id="qunit" style="display: none"></div>
