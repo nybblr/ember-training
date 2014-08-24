@@ -69,7 +69,22 @@
     </script>
 
     <script type="text/x-handlebars" data-template-name="nowPlaying">
-      <footer class="now-playing"></footer>
+      <footer class="now-playing">
+        {{#if model}}
+          <img class="now-playing-artwork" {{bind-attr src=album.artwork}}>
+          <div class="now-playing-body">
+            <p class="now-playing-details">
+              <span class="now-playing-name">{{name}}</span> -
+              <span class="now-playing-artist">{{album.artist}}</span>
+            </p>
+            <div class="now-playing-player">
+              <!-- You will fill this in later -->
+            </div>
+          </div>
+        {{else}}
+          <span class="now-playing-empty">Select a song to start playing.</span>
+        {{/if}}
+      </footer>
     </script>
 
     <div id="qunit" style="display: none"></div>

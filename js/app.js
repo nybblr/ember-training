@@ -44,4 +44,6 @@ App.AlbumRoute = Ember.Route.extend({
   }
 });
 
+App.NowPlayingController = Ember.ObjectController.extend();
+
 })();
