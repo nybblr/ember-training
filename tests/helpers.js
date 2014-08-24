@@ -55,6 +55,7 @@ function click(selector, view) {
 
 function _shouldHaveElement(selector, content, message, root) {
   var generatedMessage;
+
   if (typeof content === 'string') {
     generatedMessage = selector + " containing '" + content + "'";
     selector += ':contains("' + content + '")';
@@ -90,7 +91,7 @@ function shouldHaveElement(selector, content, message) {
   removeExpectedFromResult();
 }
 
-function viewShouldHaveElement(view, selector, content, message) {
+function componentShouldHaveElement(view, selector, content, message) {
   var element = view.get('element');
   var ret = _shouldHaveElement(selector, content, message, element);
 
@@ -153,10 +154,9 @@ function shouldHaveTemplate(templateName) {
   removeExpectedFromResult();
 }
 
-function testView(viewClass, message, callback) {
+function testComponent(viewClass, message, callback) {
   test(message, function() {
-    var view;
-    view = viewClass.create();
+    var view = App.__container__.lookup('component:'+viewClass);
     Ember._viewsInTest.push(view);
     Ember.run(function() {
       view.appendTo('#qunit-fixture');
@@ -210,26 +210,41 @@ function propertyShouldBecome(object, property, expectedValue) {
 function waitFor(object, property, callback) {
   stop();
 
-  function observer() {
-    if (object.get(property)) {
-      start();
+  return new Ember.RSVP.Promise(function(resolve, reject) {
+    function observer() {
       clearTimeout(timeout);
       Ember.removeObserver(object, property, observer);
-      Ember.run.next(callback);
+      if (callback) {
+        Ember.run.next(callback);
+      }
+
+      Ember.run.next(function() {
+        start();
+        resolve();
+      });
     }
-  }
 
-  Ember.addObserver(object, property, observer);
+    Ember.addObserver(object, property, observer);
 
-  var timeout = setTimeout(function() {
-    start();
-    QUnit.push(false, null, null, "Timed out waiting for " + property + " of " + object + " to become truthy");
-    removeExpectedFromResult();
-  }, 3800);
+    var timeout = setTimeout(function() {
+      start();
+      QUnit.push(false, null, null, "Timed out waiting for " + property + " of " + object + " to become truthy");
+      removeExpectedFromResult();
+      Ember.run(function() {
+        reject();
+      });
+    }, 3800);
+  });
 }
 
 function controllerFor(controller) {
   return App.__container__.lookup('controller:' + controller);
+}
+
+function setControllerModel(controller, model) {
+  Ember.run(function() {
+    controllerFor(controller).set('model', model);
+  });
 }
 
 function removeExpectedFromResult() {
@@ -239,3 +254,4 @@ function removeExpectedFromResult() {
 
   lastAssertion.message = lastAssertion.message.replace(/<tr class='test-expected'>.*?<\/tr>/, '');
 }
+
