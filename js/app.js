@@ -54,4 +54,8 @@ App.AlbumRoute = Ember.Route.extend({
 
 App.NowPlayingController = Ember.ObjectController.extend();
 
+App.AudioPlayerComponent = Ember.Component.extend({
+  classNames: 'audio-control'
+});
+
 })();
