@@ -22,6 +22,14 @@ App.Router.map(function () {
   this.resource('album', { path: '/album/:album_id' })
 });
 
+App.ApplicationRoute = Ember.Route.extend({
+  actions: {
+    play: function (song) {
+      this.controllerFor('nowPlaying').set('model', song);
+    }
+  }
+});
+
 App.Album = Ember.Object.extend({
   totalDuration: function () {
     return this.get('songs').reduce(function (sum, song) {
