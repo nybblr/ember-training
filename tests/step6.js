@@ -53,4 +53,3 @@ test("It should have a list of songs", function() {
 
   shouldHaveElements('.album-listing td.song-duration', 4, "The duration information for four tracks should be displayed in the last cell");
 });
-

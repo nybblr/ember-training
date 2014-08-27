@@ -28,7 +28,6 @@ test("The audio player is rendered into the now playing template", function() {
   click('.album:first a');
   click('td.song-track:first .play');
 
-  shouldHaveElement('.now-playing-player .ember-view', undefined, "App.AudioView is added to the now playing template in correct location");
   shouldHaveElement('.now-playing-player .ember-view.audio-control', undefined, "App.AudioView has the audio-control class name");
 
   shouldBeView('.now-playing-player .ember-view.audio-control');

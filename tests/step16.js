@@ -3,9 +3,6 @@
   currently playing song. If you click on it, it should hide the total duration
   and show the time remaining.
 
-  Remember, if you want to reference the duration in your template, you should
-  use `view.duration`.
-
   By now, this should be a pretty simple feature for you to implement. Just use
   the concepts you put to use yesterday.
 
@@ -19,10 +16,10 @@
   * When you play a song, the current time should appear in the Now Playing panel.
   * When you click on the current time, it should show the remaining time.
 
-  Note: You'll probably need to use jQuery to set up a listener to know when the
-  song has loaded. Because these tests are asynchronous, make sure you use QUnit's
-  start() and stop() methods. If you finish this early, you should write a helper
-  to clean up this code.
+  Note: You'll probably need to use jQuery to set up a listener to know when
+  the song has loaded. Because these tests are asynchronous, make sure you use
+  QUnit's start() and stop() methods. If you finish this early, you should
+  write a helper to clean up this code.
 
   Good luck!
 */
