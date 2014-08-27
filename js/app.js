@@ -55,7 +55,31 @@ App.AlbumRoute = Ember.Route.extend({
 App.NowPlayingController = Ember.ObjectController.extend();
 
 App.AudioPlayerComponent = Ember.Component.extend({
-  classNames: 'audio-control'
+  classNames: 'audio-control',
+
+  duration: null,
+  currentTime: 0,
+  isLoaded: false,
+
+  didInsertElement: function () {
+    var $audio = this.$('audio'),
+        component = this;
+
+    $audio
+      .on('loadedmetadata', function () {
+        component.set('duration', Math.floor(this.duration));
+        component.set('isLoaded', true);
+      })
+      .on('timeupdate', function () {
+        component.set('currentTime', Math.floor(this.currentTime));
+      })
+      .on('play', function () {
+        component.set('isPlaying', true);
+      })
+      .on('pause', function () {
+        component.set('isPlaying', false);
+      });
+  }
 });
 
 })();
