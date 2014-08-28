@@ -92,4 +92,16 @@ App.AudioPlayerComponent = Ember.Component.extend({
   }
 });
 
+App.SongDurationComponent = Ember.Component.extend({
+  showingRemaining: false,
+
+  remaining: function () {
+    return this.get('duration') - this.get('current');
+  }.property('current', 'duration'),
+
+  click: function () {
+    this.toggleProperty('showingRemaining');
+  }
+});
+
 })();
