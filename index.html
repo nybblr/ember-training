@@ -52,8 +52,8 @@
 
       <table class="album-listing">
         <tbody>
-          {{#each songs}}
-            <tr>
+          {{#each songs itemController='songItem'}}
+            <tr {{bind-attr class='isPlaying'}}>
               <td class="song-track">
                 <span class="track-number">{{track}}</span>
                 <span class="play" {{action "play" this}}>▶</span>
