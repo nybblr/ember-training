@@ -21,6 +21,8 @@
       {{outlet}}
 
       {{render 'nowPlaying'}}
+
+      {{render 'queue'}}
     </script>
 
     <script type="text/x-handlebars" data-template-name="index">
@@ -50,20 +52,25 @@
         <h2>{{artist}}</h2>
       </div>
 
+      {{render 'albumListing' songs}}
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="albumListing">
       <table class="album-listing">
         <tbody>
-          {{#each songs itemController='songItem'}}
-            <tr {{bind-attr class='isPlaying'}}>
+          {{#each itemController='songItem'}}
+            <tr {{bind-attr class=isPlaying}}>
               <td class="song-track">
                 <span class="track-number">{{track}}</span>
                 <span class="play" {{action "play" this}}>▶</span>
               </td>
               <td class="song-name">{{name}}</td>
               <td class="song-duration">{{format-duration duration}}</td>
+              <td class="song-queue"><button class="queue" {{action 'playLater' this}}>Queue</button></td>
             </tr>
           {{/each}}
           <tr>
-            <td class="total-duration" colspan="3">Total Time: {{format-duration totalDuration}}</td>
+            <td class="total-duration" colspan="4">Total Time: {{format-duration totalDuration}}</td>
           </tr>
         </tbody>
       </table>
@@ -79,12 +86,13 @@
               <span class="now-playing-artist">{{album.artist}}</span>
             </p>
             <div class="now-playing-player">
-              {{audio-player src=url}}
+              {{audio-player src=url ended="nextSong"}}
             </div>
           </div>
         {{else}}
           <span class="now-playing-empty">Select a song to start playing.</span>
         {{/if}}
+        <button class="show-queue" {{action 'toggleQueue'}}>Show queue</button>
       </footer>
     </script>
 
@@ -107,6 +115,12 @@
           {{format-duration current}}
         {{/if}}
       </p>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="queue">
+      <div id="queue" {{bind-attr class='isVisible::hidden'}}>
+        {{render 'albumListing' this}}
+      </div>
     </script>
 
     <div id="qunit" style="display: none"></div>

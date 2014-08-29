@@ -25,16 +25,25 @@ App.Router.map(function () {
 App.ApplicationRoute = Ember.Route.extend({
   actions: {
     play: function (song) {
-      this.controllerFor('nowPlaying').set('model', song);
+      var nowPlaying = this.controllerFor('nowPlaying');
+      nowPlaying.resetQueue();
+      this.send('playLater', song);
+    },
+    playLater: function (song) {
+      this.controllerFor('nowPlaying').send('enqueue', song);
     }
   }
 });
 
+var songsDuration = function (songs) {
+  return songs.reduce(function (sum, song) {
+    return sum + song.duration;
+  }, 0);
+};
+
 App.Album = Ember.Object.extend({
   totalDuration: function () {
-    return this.get('songs').reduce(function (sum, song) {
-      return sum + song.duration;
-    }, 0);
+    return songsDuration(this.get('songs'));
   }.property('songs.@each.duration')
 });
 
@@ -52,7 +61,47 @@ App.AlbumRoute = Ember.Route.extend({
   }
 });
 
-App.NowPlayingController = Ember.ObjectController.extend();
+App.AlbumListingController = Ember.ArrayController.extend({
+  totalDuration: function () {
+    return songsDuration(this.get('model'));
+  }.property('model.@each.duration')
+});
+
+App.NowPlayingController = Ember.ObjectController.extend({
+  showQueue: false,
+
+  init: function () {
+    this.set('queue', []);
+  },
+
+  queueUpdated: function () {
+    this.set('model', this.get('queue')[0]);
+  }.observes('queue.@each'),
+
+  enqueueSong: function (song) {
+    this.get('queue').pushObject(song);
+  },
+
+  dequeueSong: function () {
+    return this.get('queue').shiftObject();
+  },
+
+  resetQueue: function () {
+    this.get('queue').clear();
+  },
+
+  actions: {
+    enqueue: function (song) {
+      this.enqueueSong(song);
+    },
+    nextSong: function () {
+      var song = this.dequeueSong();
+    },
+    toggleQueue: function () {
+      this.toggleProperty('showQueue');
+    }
+  }
+});
 
 App.SongItemController = Ember.ObjectController.extend({
   needs: 'nowPlaying',
@@ -62,12 +111,21 @@ App.SongItemController = Ember.ObjectController.extend({
   }.property('model', 'controllers.nowPlaying.model')
 });
 
+App.QueueController = Ember.ArrayController.extend({
+  needs: 'nowPlaying',
+
+  isVisible: Ember.computed.alias('controllers.nowPlaying.showQueue'),
+
+  model: Ember.computed.alias('controllers.nowPlaying.queue'),
+});
+
 App.AudioPlayerComponent = Ember.Component.extend({
   classNames: 'audio-control',
 
   duration: null,
   currentTime: 0,
   isLoaded: false,
+  isPlaying: false,
 
   didInsertElement: function () {
     var $audio = this.$('audio'),
@@ -86,6 +144,10 @@ App.AudioPlayerComponent = Ember.Component.extend({
       })
       .on('pause', function () {
         component.set('isPlaying', false);
+      })
+      .on('ended', function () {
+        component.set('isPlaying', false);
+        component.sendAction('ended');
       });
   },
 

@@ -236,8 +236,13 @@ div.audio-control input[type=range] {
   border: 1px solid #ccc;
   background: white;
   padding: 10px;
+  overflow: auto;
 }
 
 .show-queue {
   width: 100px;
+}
+
+.hidden {
+  display: none;
 }
