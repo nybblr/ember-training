@@ -132,7 +132,7 @@
     },
 
     _stepIndex: function (index, step) {
-      return modulo((index + step), this.albumList().length);
+      return modulo(index + step, this.albumList().length);
     },
 
     _stepAlbum: function (step) {
@@ -185,7 +185,7 @@
         this.enqueueSong(song);
       },
       nextSong: function () {
-        var song = this.dequeueSong();
+        this.dequeueSong();
       },
       toggleQueue: function () {
         this.toggleProperty('showQueue');
@@ -209,7 +209,7 @@
 
     isVisible: Ember.computed.alias('controllers.nowPlaying.showQueue'),
 
-    model: Ember.computed.alias('controllers.nowPlaying.queue'),
+    model: Ember.computed.alias('controllers.nowPlaying.queue')
   });
 
   App.AudioPlayerComponent = Ember.Component.extend({
