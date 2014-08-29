@@ -9,6 +9,7 @@
     <script src="vendor/handlebars/handlebars.js"></script>
     <script src="vendor/jquery/dist/jquery.js"></script>
     <script src="vendor/ember/ember.js"></script>
+    <script src="vendor/mousetrap/mousetrap.js"></script>
     <script src="js/app.js"></script>
     <script src="js/fixtures.js"></script>
 
@@ -86,7 +87,7 @@
               <span class="now-playing-artist">{{album.artist}}</span>
             </p>
             <div class="now-playing-player">
-              {{audio-player src=url ended="nextSong"}}
+              {{audio-player src=url isPlaying=isPlaying ended="nextSong"}}
             </div>
           </div>
         {{else}}

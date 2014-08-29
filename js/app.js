@@ -1,6 +1,10 @@
 (function() {
 "use strict";
 
+var modulo = function (a, b) {
+  return (a % b + +b) % b;
+};
+
 Ember.Handlebars.helper('format-duration', function (value) {
   var minutes = Math.floor(value / 60);
   var seconds = value % 60;
@@ -18,11 +22,52 @@ Ember.Handlebars.helper('format-duration', function (value) {
 
 window.App = Ember.Application.create();
 
+App.ShortcutsMixin = Ember.Mixin.create({
+  activate: function () {
+    this._super();
+    this._shortcutCallbacks = {};
+    var self = this;
+    var shortcuts = this.shortcuts;
+    for (var shortcut in shortcuts) {
+      var action = shortcuts[shortcut];
+      var callback = (function (shortcut, action) {
+        return function (event) {
+          action.apply(self, event);
+        };
+      })(shortcut, action);
+      this._shortcutCallbacks[shortcut] = callback;
+      Mousetrap.bind(shortcut, callback);
+    }
+  },
+  deactivate: function () {
+    this._super();
+    var shortcuts = this._shortcutCallbacks;
+    for (var shortcut in shortcuts) {
+      var callback = shortcuts[shortcut];
+      Mousetrap.unbind(shortcut, callback);
+    }
+    this._shortcutCallbacks = {};
+  }
+});
+
+Ember.Route.reopen(App.ShortcutsMixin);
+
 App.Router.map(function () {
   this.resource('album', { path: '/album/:album_id' })
 });
 
 App.ApplicationRoute = Ember.Route.extend({
+  shortcuts: {
+    space: function () {
+      event.preventDefault();
+      this.send('togglePlaying');
+    },
+    down: function () {
+      event.preventDefault();
+      this.controllerFor('nowPlaying').send('nextSong');
+    }
+  },
+
   actions: {
     play: function (song) {
       var nowPlaying = this.controllerFor('nowPlaying');
@@ -31,6 +76,9 @@ App.ApplicationRoute = Ember.Route.extend({
     },
     playLater: function (song) {
       this.controllerFor('nowPlaying').send('enqueue', song);
+    },
+    togglePlaying: function () {
+      this.controllerFor('nowPlaying').send('togglePlaying');
     }
   }
 });
@@ -56,8 +104,49 @@ App.IndexRoute = Ember.Route.extend({
 });
 
 App.AlbumRoute = Ember.Route.extend({
+  shortcuts: {
+    esc: function () {
+      event.preventDefault();
+      this.transitionTo('application');
+    },
+    left: function () {
+      event.preventDefault();
+      this.send('prevAlbum');
+    },
+    right: function () {
+      event.preventDefault();
+      this.send('nextAlbum');
+    }
+  },
+
   model: function (params) {
-    return App.ALBUM_FIXTURES.findProperty('id', params.album_id);
+    return this.albumList().findProperty('id', params.album_id);
+  },
+
+  albumList: function () {
+    return App.ALBUM_FIXTURES;
+  },
+
+  _currentIndex: function (album) {
+    return this.albumList().indexOf(this.currentModel);
+  },
+
+  _stepIndex: function (index, step) {
+    return modulo((index + step), this.albumList().length);
+  },
+
+  _stepAlbum: function (step) {
+    var index = this._stepIndex(this._currentIndex(), step);
+    return this.albumList()[index];
+  },
+
+  actions: {
+    prevAlbum: function () {
+      this.transitionTo('album', this._stepAlbum(-1));
+    },
+    nextAlbum: function () {
+      this.transitionTo('album', this._stepAlbum(1));
+    }
   }
 });
 
@@ -69,12 +158,13 @@ App.AlbumListingController = Ember.ArrayController.extend({
 
 App.NowPlayingController = Ember.ObjectController.extend({
   showQueue: false,
+  isPlaying: false,
 
   init: function () {
     this.set('queue', []);
   },
 
-  queueUpdated: function () {
+  queueChanged: function () {
     this.set('model', this.get('queue')[0]);
   }.observes('queue.@each'),
 
@@ -99,6 +189,9 @@ App.NowPlayingController = Ember.ObjectController.extend({
     },
     toggleQueue: function () {
       this.toggleProperty('showQueue');
+    },
+    togglePlaying: function () {
+      this.toggleProperty('isPlaying');
     }
   }
 });
@@ -126,6 +219,14 @@ App.AudioPlayerComponent = Ember.Component.extend({
   currentTime: 0,
   isLoaded: false,
   isPlaying: false,
+
+  isPlayingChanged: function () {
+    if (this.get('isPlaying')) {
+      this.send('play');
+    } else {
+      this.send('pause');
+    }
+  }.observes('isPlaying'),
 
   didInsertElement: function () {
     var $audio = this.$('audio'),
